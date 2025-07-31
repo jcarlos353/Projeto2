@@ -16,5 +16,26 @@ def home():
 def api_precos():
     return jsonify(get_crypto_prices())
 
+@app.route('/api/tvl')
+def api_tvl():
+    try:
+        url = 'https://api.llama.fi/protocols'
+        response = requests.get(url)
+        data = response.json()
+
+        top_10 = sorted(data, key=lambda x: x.get('tvl', 0), reverse=True)[:10]
+
+        result = [
+            {
+                'name': item['name'],
+                'tvl': item['tvl'],
+                'url': item.get('url', '')
+            }
+            for item in top_10
+        ]
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

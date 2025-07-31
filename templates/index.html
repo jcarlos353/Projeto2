@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Preços Criptomoedas</title>
+    <title>Cripto Preços e TVL</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 30px; }
         .card { background: #f5f5f5; padding: 20px; margin: 10px 0; border-radius: 10px; }
@@ -23,6 +23,9 @@
 
     <p style="color: gray;">Atualizando a cada 10 segundos...</p>
 
+    <h2>Top 10 Criptos com Maior TVL (via DeFiLlama)</h2>
+    <ul id="tvl-list"></ul>
+
     <script>
         async function atualizarPrecos() {
             try {
@@ -36,7 +39,32 @@
             }
         }
 
+        async function carregarTVL() {
+            try {
+                const res = await fetch('/api/tvl');
+                const dados = await res.json();
+                const ul = document.getElementById('tvl-list');
+                ul.innerHTML = '';
+
+                dados.forEach(cripto => {
+                    const li = document.createElement('li');
+                    const tvlFormatado = cripto.tvl.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+                    if (cripto.url) {
+                        li.innerHTML = `<a href="${cripto.url}" target="_blank">${cripto.name}</a>: ${tvlFormatado}`;
+                    } else {
+                        li.innerText = `${cripto.name}: ${tvlFormatado}`;
+                    }
+
+                    ul.appendChild(li);
+                });
+            } catch (err) {
+                console.error("Erro ao buscar TVL:", err);
+            }
+        }
+
         atualizarPrecos();
+        carregarTVL();
         setInterval(atualizarPrecos, 10000);
     </script>
 </body>
